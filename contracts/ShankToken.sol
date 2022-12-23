@@ -69,16 +69,25 @@ contract ShankToken {
     ) public returns (bool) {
         require(
             balanceOf(_from) >= _amount,
-            "account does not have enough tokens to transfer"
+            "account has insufficient balance"
         );
         require(
             allowance(msg.sender, _from) >= _amount,
-            "account does not have permission to transfer all tokens"
+            "cannot transfer value larger than approved amount"
         );
-        _balances[_from] -= _amount ;
-        _balances[_to] += _amount ;
-        _allowed[msg.sender][_from] -= _amount ;
-        emit Transfer(_from , _to , _amount) ;
+        _balances[_from] -= _amount;
+        _balances[_to] += _amount;
+        _allowed[msg.sender][_from] -= _amount;
+        emit Transfer(_from, _to, _amount);
+        return true;
+    }
+
+    function increaseAllowance(
+        address accountAdd,
+        uint incrementValue
+    ) public returns (bool) {
+        _allowed[msg.sender][accountAdd] += incrementValue;
+        emit Approval(msg.sender, accountAdd, _allowed[msg.sender][accountAdd]);
         return true;
     }
 }

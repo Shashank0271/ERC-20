@@ -52,10 +52,10 @@ describe('ShankToken Contract' , ()=>{
         }) ;
         it('must revert if account does not have enough tokens , but has permission to transfer tokens' , async()=>{
             await expect(tokenContract.approve(acc1.address , 200)).to.emit(tokenContract , 'Approval').withArgs(owner.address , acc1.address , 200) ;
-            await expect(tokenContract.transferFrom(acc1.address , acc2.address , 9000)).to.be.revertedWith('account does not have enough tokens to transfer') ;
+            await expect(tokenContract.transferFrom(acc1.address , acc2.address , 9000)).to.be.revertedWith('account has insufficient balance') ;
         });
         it('must revert if account does not have permission to transfer tokens'  , async()=>{
-            await expect(tokenContract.transferFrom(acc1.address , acc2.address , 20)).to.be.revertedWith('account does not have permission to transfer all tokens') ;
+            await expect(tokenContract.transferFrom(acc1.address , acc2.address , 20)).to.be.revertedWith('cannot transfer value larger than approved amount') ;
         });
         it('must transfer tokens when all conditions are met' , async()=>{
             //allowed to transfer 100 tokens (owns 200 initially)
@@ -68,5 +68,14 @@ describe('ShankToken Contract' , ()=>{
             expect(await tokenContract.allowance(owner.address , acc1.address)).to.be.equals(90) ;
         });
     });
+    describe('Increase allowance' , ()=>{
+        it('must increase the existing allowance by some value' , async()=>{
+            await tokenContract.approve(acc1.address , 300) ;
+            await tokenContract.transfer(acc1.address , 300) ;
+            expect(await tokenContract.allowance(owner.address , acc1.address)).to.be.equal(300) ;
+            await tokenContract.increaseAllowance(acc1.address , 5) ;
+            expect(await tokenContract.allowance(owner.address , acc1.address)).to.be.equals(305) ;
+        });
+    });
 
-})
+});
