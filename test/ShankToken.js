@@ -10,6 +10,11 @@ describe('ShankToken Contract' , ()=>{
         [owner , acc1 , acc2] = await ethers.getSigners() ;
     });
     describe('Deployment' , ()=>{
+        it('sets the name , symbol and standard on deployment' , async()=>{
+            expect(await tokenContract.name()).to.be.equals("ShankToken") ;
+            expect(await tokenContract.symbol()).to.be.equals("STK") ;
+            expect(await tokenContract.standard()).to.be.equals("Shank Token v1.0") ;
+        });
         it('allocates the initial supply on deployment' , async()=>{
             expect(await tokenContract.totalSupply()).to.not.be.undefined ;
             expect(await tokenContract.totalSupply()).to.be.equals(350) ;
@@ -77,5 +82,17 @@ describe('ShankToken Contract' , ()=>{
             expect(await tokenContract.allowance(owner.address , acc1.address)).to.be.equals(305) ;
         });
     });
-
+    describe('Decrease allowance' , ()=>{
+        beforeEach(async()=>{
+            await tokenContract.approve(acc1.address , 300) ;
+            await tokenContract.transfer(acc1.address , 300) ;
+        });
+        it('decrement allowance' , async()=>{
+            await expect(tokenContract.decreaseAllowance(acc1.address , 5)).to.not.be.reverted ;
+            expect(await tokenContract.allowance(owner.address , acc1.address)).to.be.equals(295) ;
+        });
+        it('should revert when decrement value is greater than previous allowance' , async()=>{
+            await expect(tokenContract.decreaseAllowance(acc1.address , 5000)).to.be.revertedWith('allowed amount must be greater than or equal to decrement') ;
+        });
+    });
 });

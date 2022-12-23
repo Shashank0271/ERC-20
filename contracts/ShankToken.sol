@@ -90,4 +90,17 @@ contract ShankToken {
         emit Approval(msg.sender, accountAdd, _allowed[msg.sender][accountAdd]);
         return true;
     }
+
+    function decreaseAllowance(
+        address account,
+        uint decrementBy
+    ) public returns (bool) {
+        require(
+            _allowed[msg.sender][account] >= decrementBy,
+            "allowed amount must be greater than or equal to decrement"
+        );
+        _allowed[msg.sender][account] -= decrementBy;
+        emit Approval(msg.sender, account, _allowed[msg.sender][account]);
+        return true ;
+    }
 }
