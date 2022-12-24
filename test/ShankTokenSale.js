@@ -25,24 +25,30 @@ describe('ShankTokenSale' , ()=>{
     });
 
     describe('Token buying' , async()=>{
-        let numberOfTokens , value ;
-        beforeEach(()=>{
+        let numberOfTokens , value , signedBuyer ;
+        beforeEach(async()=>{
             numberOfTokens = 3 ;
             value = numberOfTokens * tokenPrice ;
+            signedBuyer = await ethers.getSigner(buyer.address);
         });
         it('facilitates token buying' , async()=>{
             //require that value is equal to the tokens
             //require that there are enough tokens in the contract
             
             //keep track of number of tokens sold 
-            expect(await tokenSaleContract.buyTokens(numberOfTokens , {value : value})).to.not.be.reverted ;
+            await expect(tokenSaleContract.connect(signedBuyer).buyTokens(numberOfTokens , {value : value})).to.not.be.reverted ;
             expect(await tokenSaleContract.tokensSold()).to.be.equals(numberOfTokens) ;
             
-            //require that transfer is successfull 
+            //require that transfer is successfull
+            
+        });
+        it('reverts when msg.value is not equal to token price' , async()=>{
+            let transaction = tokenSaleContract.connect(signedBuyer).buyTokens(numberOfTokens, {value:1});
+            await expect(transaction).to.be.reverted;
         });
         it('emits a sell event on buying tokens' , async()=>{
-            signedBuyer = await ethers.getSigner(buyer.address) ;
-            expect(await tokenSaleContract.connect(signedBuyer).buyTokens(numberOfTokens)).to.emit(tokenSaleContract , 'Sell').withArgs(buyer.address , numberOfTokens) ;
+            let transaction = tokenSaleContract.connect(signedBuyer).buyTokens(numberOfTokens, {value:value});
+            expect(transaction).to.emit(tokenSaleContract , 'Sell').withArgs(buyer.address , numberOfTokens) ;
         });
     });
 })

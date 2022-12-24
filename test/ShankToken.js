@@ -11,7 +11,6 @@ describe('ShankToken Contract' , ()=>{
     });
     describe('Deployment' , ()=>{
         it('sets the name , symbol and standard on deployment' , async()=>{
-            await ethers.providers.transfer(acc1.address) ;
             expect(await tokenContract.name()).to.be.equals("ShankToken") ;
             expect(await tokenContract.symbol()).to.be.equals("STK") ;
             expect(await tokenContract.standard()).to.be.equals("Shank Token v1.0") ;

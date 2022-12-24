@@ -2,6 +2,7 @@
 pragma solidity ^0.8.1;
 import "hardhat/console.sol";
 import "./ShankToken.sol";
+import "./SafeMath.sol";
 
 contract ShankTokenSale {
     address public admin;
@@ -15,9 +16,10 @@ contract ShankTokenSale {
         tokenContract = _tokenContract;
         tokenPrice = _tokenPrice;
     }
-
+    
     function buyTokens(uint256 _numberOfTokens) public payable {
-        // require(msg.value == _numberOfTokens*tokenPrice) ;
+        require(msg.value == SafeMath.mul(_numberOfTokens,tokenPrice)) ;
+        //the contract must have enough token to give to the buyer
         tokensSold += _numberOfTokens;
         emit Sell(msg.sender, _numberOfTokens); //the person calling this function is the buyer
     }
