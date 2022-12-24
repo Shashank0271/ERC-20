@@ -2,17 +2,19 @@ const {ethers} = require('hardhat') ;
 const {expect} = require('chai') ;
 
 describe('ShankTokenSale' , ()=>{
-    let tokenSaleContract ;
-    let owner , buyer ;
+    let tokenSaleContract , tokenContract ;
+    let admin , owner , buyer ; //admin is the first of the list of hardhat accounts that initially holds the initial supply
     let tokenPrice = 1000000000000000 ; //in wei (10^5) , 0.01 ether
+    let totalSupply = 10000 ;
+    let tokensAvailable = 7500 ;
     beforeEach(async()=>{
-        [owner , buyer] = await ethers.getSigners() ;
-        let tokenContract = await ethers.getContractFactory('ShankToken') ;
-        token = await tokenContract.deploy(10000) ;
-
+        [admin , owner , buyer] = await ethers.getSigners() ;
+        let Token = await ethers.getContractFactory('ShankToken') ;
+        tokenContract = await Token.deploy(totalSupply) ;
         TokenSale = await ethers.getContractFactory('ShankTokenSale') ;
-        tokenSaleContract = await TokenSale.deploy(token.address , tokenPrice) ;
+        tokenSaleContract = await TokenSale.connect(await ethers.getSigner(owner.address)).deploy(tokenContract.address , tokenPrice) ;
     });
+
     describe('Deployment' , async()=>{
        it('initializes the contract with correct value of owner' , async()=>{
             expect(await tokenSaleContract.admin()).to.not.be.undefined ;
@@ -22,6 +24,9 @@ describe('ShankTokenSale' , ()=>{
             expect(await tokenSaleContract.tokenPrice()).to.not.be.undefined ;
             expect(await tokenSaleContract.tokenPrice()).to.be.equals(tokenPrice) ;
        });
+       it('owner account should have all the tokens' , async()=>{
+            expect(await tokenContract.balanceOf(admin.address)).to.be.equals(totalSupply);
+        });
     });
 
     describe('Token buying' , async()=>{
@@ -30,17 +35,8 @@ describe('ShankTokenSale' , ()=>{
             numberOfTokens = 3 ;
             value = numberOfTokens * tokenPrice ;
             signedBuyer = await ethers.getSigner(buyer.address);
-        });
-        it('facilitates token buying' , async()=>{
-            //require that value is equal to the tokens
-            //require that there are enough tokens in the contract
-            
-            //keep track of number of tokens sold 
-            await expect(tokenSaleContract.connect(signedBuyer).buyTokens(numberOfTokens , {value : value})).to.not.be.reverted ;
-            expect(await tokenSaleContract.tokensSold()).to.be.equals(numberOfTokens) ;
-            
-            //require that transfer is successfull
-            
+            //transfer available tokens to token sale contract from admins account :
+            tokenContract.transfer(tokenSaleContract.address , tokensAvailable);
         });
         it('reverts when msg.value is not equal to token price' , async()=>{
             let transaction = tokenSaleContract.connect(signedBuyer).buyTokens(numberOfTokens, {value:1});
@@ -49,6 +45,22 @@ describe('ShankTokenSale' , ()=>{
         it('emits a sell event on buying tokens' , async()=>{
             let transaction = tokenSaleContract.connect(signedBuyer).buyTokens(numberOfTokens, {value:value});
             expect(transaction).to.emit(tokenSaleContract , 'Sell').withArgs(buyer.address , numberOfTokens) ;
+        });
+        it('should fail when we are trying to buy more tokens than the contract has' , async()=>{
+            expect(await tokenContract.balanceOf(tokenSaleContract.address)).to.be.equals(tokensAvailable);
+            const ntok = 7501 ;
+            await expect( tokenSaleContract.connect(signedBuyer).buyTokens(ntok , {value : numberOfTokens*tokenPrice})).to.be.revertedWith('contract has insufficient funds') ;
+        })
+        it('facilitates token buying' , async()=>{
+            //require that value is equal to the tokens
+            //require that there are enough tokens in the contract
+
+            //keep track of number of tokens sold 
+            await expect(tokenSaleContract.connect(signedBuyer).buyTokens(numberOfTokens , {value : value})).to.not.be.reverted ;
+            expect(await tokenSaleContract.tokensSold()).to.be.equals(numberOfTokens) ;
+            
+            //require that transfer is successfull
+            
         });
     });
 })
