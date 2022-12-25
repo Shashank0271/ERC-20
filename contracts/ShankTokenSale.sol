@@ -22,9 +22,9 @@ contract ShankTokenSale {
             tokenContract.balanceOf(address(this)) >= _numberOfTokens,
             "contract has insufficient funds"
         );
-
         require(msg.value == SafeMath.mul(_numberOfTokens, tokenPrice));
         //the contract must have enough token to give to the buyer
+        require(tokenContract.transfer(msg.sender , _numberOfTokens) , 'transfer failed') ;
         tokensSold += _numberOfTokens;
         emit Sell(msg.sender, _numberOfTokens); //the person calling this function is the buyer
     }

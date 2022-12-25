@@ -48,19 +48,14 @@ describe('ShankTokenSale' , ()=>{
         });
         it('should fail when we are trying to buy more tokens than the contract has' , async()=>{
             expect(await tokenContract.balanceOf(tokenSaleContract.address)).to.be.equals(tokensAvailable);
-            const ntok = 7501 ;
-            await expect( tokenSaleContract.connect(signedBuyer).buyTokens(ntok , {value : numberOfTokens*tokenPrice})).to.be.revertedWith('contract has insufficient funds') ;
+            await expect( tokenSaleContract.connect(signedBuyer).buyTokens(7501 , {value : numberOfTokens*tokenPrice})).to.be.revertedWith('contract has insufficient funds') ;
         })
         it('facilitates token buying' , async()=>{
-            //require that value is equal to the tokens
-            //require that there are enough tokens in the contract
-
             //keep track of number of tokens sold 
             await expect(tokenSaleContract.connect(signedBuyer).buyTokens(numberOfTokens , {value : value})).to.not.be.reverted ;
             expect(await tokenSaleContract.tokensSold()).to.be.equals(numberOfTokens) ;
-            
             //require that transfer is successfull
-            
+            expect(await tokenContract.balanceOf(buyer.address)).to.be.equals(numberOfTokens);
         });
     });
 })
