@@ -6,11 +6,13 @@ describe('ShankTokenSale' , ()=>{
     let admin , owner , buyer ; //admin is the first of the list of hardhat accounts that initially holds the initial supply
     let tokenPrice = 1000000000000000 ; //in wei (10^5) , 0.01 ether
     let totalSupply = 10000 ;
-    let tokensAvailable = 7500 ;
+    let tokensAvailable = 7500 ; //for the token sale
     beforeEach(async()=>{
         [admin , owner , buyer] = await ethers.getSigners() ;
+        //deploying token contract with total supply of tokens
         let Token = await ethers.getContractFactory('ShankToken') ;
         tokenContract = await Token.deploy(totalSupply) ;
+        //deploying token sale contract 
         TokenSale = await ethers.getContractFactory('ShankTokenSale') ;
         tokenSaleContract = await TokenSale.connect(await ethers.getSigner(owner.address)).deploy(tokenContract.address , tokenPrice) ;
     });
@@ -29,7 +31,7 @@ describe('ShankTokenSale' , ()=>{
         });
     });
 
-    describe('Token buying' , async()=>{
+    describe('Transactions' , async()=>{
         let numberOfTokens , value , signedBuyer ;
         beforeEach(async()=>{
             numberOfTokens = 3 ;
@@ -57,5 +59,16 @@ describe('ShankTokenSale' , ()=>{
             //require that transfer is successfull
             expect(await tokenContract.balanceOf(buyer.address)).to.be.equals(numberOfTokens);
         });
+        it('try to send sale from account from buyer' , async()=>{
+            await expect(tokenSaleContract.connect(signedBuyer).endTokenSale()).to.be.revertedWith('only the admin can end the sale') ;
+        });
+        it('ends the token sale after transferring remaining amount to admin' , async()=>{
+            await expect(tokenSaleContract.connect(signedBuyer).buyTokens(numberOfTokens , {value : value})).to.not.be.reverted ;
+            tokensSold = await tokenSaleContract.tokensSold() ;
+            expect(tokensSold).to.be.equals(numberOfTokens) ;
+            remainingTokens = tokensAvailable - tokensSold ;
+            expect(await tokenContract.balanceOf(tokenSaleContract.address)).to.be.equals(remainingTokens) ;
+            expect(await tokenSaleContract.connect(owner).endTokenSale()).to.emit(tokenSaleContract , 'End') ;
+        });
     });
-})
+});
