@@ -59,8 +59,11 @@ describe('ShankTokenSale' , ()=>{
             //require that transfer is successfull
             expect(await tokenContract.balanceOf(buyer.address)).to.be.equals(numberOfTokens);
         });
-        it('try to send sale from account from buyer' , async()=>{
+        it('call to end sale from buyer fails' , async()=>{
             await expect(tokenSaleContract.connect(signedBuyer).endTokenSale()).to.be.revertedWith('only the admin can end the sale') ;
+        });
+        it('call to end token from admin succeeds' , async()=>{
+            await expect(tokenSaleContract.connect(owner).endTokenSale()).to.be.not.reverted ;
         });
         it('ends the token sale after transferring remaining amount to admin' , async()=>{
             await expect(tokenSaleContract.connect(signedBuyer).buyTokens(numberOfTokens , {value : value})).to.not.be.reverted ;

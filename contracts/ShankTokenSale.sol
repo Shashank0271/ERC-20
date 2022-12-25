@@ -10,7 +10,7 @@ contract ShankTokenSale {
     uint256 public tokenPrice;
     uint256 public tokensSold;
     event Sell(address _buyer, uint256 _amountSold);
-    event End() ;
+    event End();
 
     constructor(ShankToken _tokenContract, uint256 _tokenPrice) {
         admin = msg.sender;
@@ -18,8 +18,8 @@ contract ShankTokenSale {
         tokenPrice = _tokenPrice;
     }
 
-    modifier OnlyAdmin {
-        require(msg.sender == admin , 'only the admin can end the sale') ;
+    modifier OnlyAdmin() {
+        require(msg.sender == admin, "only the admin can end the sale");
         _;
     }
 
@@ -30,16 +30,18 @@ contract ShankTokenSale {
         );
         require(msg.value == SafeMath.mul(_numberOfTokens, tokenPrice));
         //the contract must have enough token to give to the buyer
-        require(tokenContract.transfer(msg.sender , _numberOfTokens) , 'transfer failed') ;
+        require(
+            tokenContract.transfer(msg.sender, _numberOfTokens),
+            "transfer failed"
+        );
         tokensSold += _numberOfTokens;
         emit Sell(msg.sender, _numberOfTokens); //the person calling this function is the buyer
     }
 
-    function endTokenSale() public OnlyAdmin{
-        //transfer any remaining tokens to the admin :
-        tokenContract.transfer(admin , tokenContract.balanceOf(address(this))) ;
-        emit End() ;
+    function endTokenSale() public OnlyAdmin {
+        //transfer any rem  aining tokens to the admin :
+        tokenContract.transfer(admin, tokenContract.balanceOf(address(this)));
+        selfdestruct(payable(admin));
+        emit End();
     }
-
-
 }
