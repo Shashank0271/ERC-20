@@ -7,6 +7,7 @@ describe('ShankTokenSale' , ()=>{
     let tokenPrice = 1000000000000000 ; //in wei (10^5) , 0.01 ether
     let totalSupply = 10000 ;
     let tokensAvailable = 7500 ; //for the token sale
+    
     beforeEach(async()=>{
         [admin , owner , buyer] = await ethers.getSigners() ;
         //deploying token contract with total supply of tokens
@@ -59,10 +60,10 @@ describe('ShankTokenSale' , ()=>{
             //require that transfer is successfull
             expect(await tokenContract.balanceOf(buyer.address)).to.be.equals(numberOfTokens);
         });
-        it('call to end sale from buyer fails' , async()=>{
+        it('call to end token sale from buyer fails' , async()=>{
             await expect(tokenSaleContract.connect(signedBuyer).endTokenSale()).to.be.revertedWith('only the admin can end the sale') ;
         });
-        it('call to end token from admin succeeds' , async()=>{
+        it('call to end token salefrom admin succeeds' , async()=>{
             await expect(tokenSaleContract.connect(owner).endTokenSale()).to.be.not.reverted ;
         });
         it('ends the token sale after transferring remaining amount to admin' , async()=>{

@@ -25,7 +25,9 @@ describe('ShankToken Contract' , ()=>{
     });
     describe('Transfer' , ()=>{
         it('emits Transfer event during transaction' , async()=>{
-            await expect(tokenContract.transfer(acc1.address , 10)).to.emit(tokenContract , 'Transfer').withArgs(owner.address , acc1.address , 10);
+            await expect(tokenContract.transfer(acc1.address , 10))
+            .to
+            .emit(tokenContract , 'Transfer').withArgs(owner.address , acc1.address , 10);
         });
         it('transfers money from sender to an address' , async()=>{
             await expect(tokenContract.transfer(acc1.address , 20)).to.not.be.reverted ;
@@ -41,7 +43,9 @@ describe('ShankToken Contract' , ()=>{
             await expect(tokenContract.transfer(acc1.address , 250)).to.not.be.reverted ;
         });
         it('should emit Approval event after transaction is completed successfully' , async()=>{
-            await expect(tokenContract.approve(acc1.address , 100)).to.emit(tokenContract , 'Approval').withArgs(owner.address , acc1.address , 100) ;
+            await expect(tokenContract.approve(acc1.address , 100))
+            .to
+            .emit(tokenContract , 'Approval').withArgs(owner.address , acc1.address , 100) ;
         });
         it('checks the amount the owner has allowed to a spender' , async()=>{
             await expect(tokenContract.approve(acc1.address , 100)).to.not.be.reverted ;
@@ -56,7 +60,9 @@ describe('ShankToken Contract' , ()=>{
             await tokenContract.transfer(acc1.address , 200) ;
         }) ;
         it('must revert if account does not have enough tokens , but has permission to transfer tokens' , async()=>{
-            await expect(tokenContract.approve(acc1.address , 200)).to.emit(tokenContract , 'Approval').withArgs(owner.address , acc1.address , 200) ;
+            await expect(tokenContract.approve(acc1.address , 200))
+            .to
+            .emit(tokenContract , 'Approval').withArgs(owner.address , acc1.address , 200) ;
             await expect(tokenContract.transferFrom(acc1.address , acc2.address , 9000)).to.be.revertedWith('account has insufficient balance') ;
         });
         it('must revert if account does not have permission to transfer tokens'  , async()=>{
@@ -92,7 +98,8 @@ describe('ShankToken Contract' , ()=>{
             expect(await tokenContract.allowance(owner.address , acc1.address)).to.be.equals(295) ;
         });
         it('should revert when decrement value is greater than previous allowance' , async()=>{
-            await expect(tokenContract.decreaseAllowance(acc1.address , 5000)).to.be.revertedWith('allowed amount must be greater than or equal to decrement') ;
+            await expect(tokenContract.decreaseAllowance(acc1.address , 5000))
+            .to.be.revertedWith('allowed amount must be greater than or equal to decrement') ;
         });
     });
 });
