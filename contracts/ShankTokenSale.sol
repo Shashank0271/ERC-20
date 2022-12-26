@@ -2,9 +2,10 @@
 pragma solidity ^0.8.1;
 import "hardhat/console.sol";
 import "./ShankToken.sol";
-import "./SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract ShankTokenSale {
+    using SafeMath for uint256;
     address public admin;
     ShankToken public tokenContract;
     uint256 public tokenPrice;
@@ -28,7 +29,7 @@ contract ShankTokenSale {
             tokenContract.balanceOf(address(this)) >= _numberOfTokens,
             "contract has insufficient funds"
         );
-        require(msg.value == SafeMath.mul(_numberOfTokens, tokenPrice));
+        require(msg.value == _numberOfTokens.mul(tokenPrice));
         //the contract must have enough token to give to the buyer
         require(
             tokenContract.transfer(msg.sender, _numberOfTokens),
