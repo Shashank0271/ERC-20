@@ -35,12 +35,12 @@ contract ShankTokenSale {
             tokenContract.transfer(msg.sender, _numberOfTokens),
             "transfer failed"
         );
-        tokensSold += _numberOfTokens;
+        tokensSold = tokensSold.add(_numberOfTokens);
         emit Sell(msg.sender, _numberOfTokens); //the person calling this function is the buyer
     }
 
     function endTokenSale() public OnlyAdmin {
-        //transfer any rem  aining tokens to the admin :
+        //transfer any remaining tokens to the admin :
         tokenContract.transfer(admin, tokenContract.balanceOf(address(this)));
         selfdestruct(payable(admin));
         emit End();
