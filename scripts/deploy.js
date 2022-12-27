@@ -15,8 +15,8 @@ async function main() {
   const tokenSale = await TokenSale.deploy(token.address , 10) ;
   await tokenSale.deployed() ;
   
-  console.log("Token address :" , token.address) ;
-  console.log("Token Sale address :" , tokenSale.address) ;
+  console.log("Token address :" , token.address) ;//0xc58686E5F1dDA72664fB8332CdD5d913D4914ADe
+  console.log("Token Sale address :" , tokenSale.address) ;//0x4758B78D977Ae969173A0C3344b210f81E45a09d
 }
 
 // We recommend this pattern to be able to use async/await everywhere
