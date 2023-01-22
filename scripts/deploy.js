@@ -27,3 +27,10 @@ main()
   console.error(error);
   process.exitCode = 1;
 });
+
+/*
+Deploying contracts with the account :  0x350C4f5766314319CfcFEdf423fcaB896B527C38
+
+Token address : 0xc58686E5F1dDA72664fB8332CdD5d913D4914ADe
+Token Sale address : 0x4758B78D977Ae969173A0C3344b210f81E45a09d
+*/
